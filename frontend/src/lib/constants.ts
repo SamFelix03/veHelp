@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x700D3D55ec6FC21394A43b02496F320E02873114";
+export const CONTRACT_ADDRESS = "0x6b564f771732476c86edee283344f5678e314c3d";
 
 export const CONTRACT_ABI = [
     // Constructor and basic info
@@ -24,12 +24,6 @@ export const CONTRACT_ABI = [
     
     // Admin functions
     "function unlockFunds(bytes32 _disasterHash, uint256 _amount, address payable _recipient)",
-    "function unlockFundsByCreator(bytes32 _disasterHash, uint256 _amount, address payable _recipient)",
-    "function toggleDisasterStatus(bytes32 _disasterHash)",
-    "function transferOwnership(address _newOwner)",
-    
-    // Emergency functions
-    "function emergencyWithdraw()",
     
     // Mappings access
     "function disasters(bytes32) view returns (string, string, uint256, uint256, address, uint256, bool)",
@@ -42,14 +36,14 @@ export const CONTRACT_ABI = [
     "event FundsUnlocked(bytes32 indexed disasterHash, address indexed recipient, uint256 amount, address indexed unlockedBy)"
 ];
 
-export const FLOW_TESTNET_CONFIG = {
-    chainId: "0x221", // 545 in hex
-    chainName: "Flow EVM Testnet",
-    rpcUrl: "https://testnet.evm.nodes.onflow.org",
-    blockExplorer: "https://testnet.flowdiver.io",
+export const VECHAIN_TESTNET_CONFIG = {
+    chainId: "0x186aa", // 100010 in hex
+    chainName: "VeChain Testnet",
+    rpcUrl: "https://testnet.vechain.org",
+    blockExplorer: "https://explore-testnet.vechain.org",
     nativeCurrency: {
-      name: "Flow",
-      symbol: "FLOW",
+      name: "VeChain",
+      symbol: "VET",
       decimals: 18,
     },
   };

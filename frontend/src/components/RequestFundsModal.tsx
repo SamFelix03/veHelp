@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { claimsService } from "../lib/dynamodb/claims";
 import { Claim } from "../lib/types/database";
+import { useVeChainWallet } from "./VeChainWalletContext";
+import { DAppKitUI } from "@vechain/dapp-kit-ui";
 
 interface RequestFundsModalProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export default function RequestFundsModal({
   eventId,
   disasterHash,
 }: RequestFundsModalProps) {
+  const { address, isConnected, connect, disconnect } = useVeChainWallet();
   const [currentStep, setCurrentStep] = useState(1);
   const [organizationName, setOrganizationName] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -39,10 +42,16 @@ export default function RequestFundsModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string>("");
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-proceed to next step if already connected
+  useEffect(() => {
+    if (isOpen && isConnected && currentStep === 1) {
+      setCurrentStep(2);
+    }
+  }, [isOpen, isConnected]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,46 +65,18 @@ export default function RequestFundsModal({
     }
   };
 
-  const connectWallet = async () => {
+  const handleConnectWallet = async () => {
     setIsConnectingWallet(true);
+    setConnectionStatus("Opening wallet connection...");
+
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        // First check if already connected
-        const accounts = await window.ethereum.request({
-          method: 'eth_accounts'
-        }) as string[];
-        
-        if (accounts.length > 0) {
-          // Already connected
-          setWalletAddress(accounts[0]);
-          setConnectionStatus(`Wallet already connected: ${accounts[0].substring(0, 6)}...${accounts[0].substring(38)}`);
-          
-          // Auto-progress after showing the message
-          setTimeout(() => {
-            setCurrentStep(2);
-            setConnectionStatus("");
-            setIsConnectingWallet(false);
-          }, 1500);
-          return;
-        }
-        
-        // Not connected, request connection
-        const newAccounts = await window.ethereum.request({
-          method: 'eth_requestAccounts'
-        }) as string[];
-        
-        if (newAccounts.length > 0) {
-          setWalletAddress(newAccounts[0]);
-          setConnectionStatus("Wallet connected successfully!");
-          setCurrentStep(2);
-        }
-      } else {
-        setConnectionStatus("Please install MetaMask to connect your wallet.");
-      }
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
-      setConnectionStatus("Failed to connect wallet. Please try again.");
-    } finally {
+      connect();
+      setConnectionStatus("Please connect your wallet...");
+    } catch (error: unknown) {
+      console.error("Error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to connect";
+      setConnectionStatus(`Error: ${errorMessage}`);
       setIsConnectingWallet(false);
     }
   };
@@ -111,7 +92,6 @@ export default function RequestFundsModal({
       setCurrentStep(2);
     } else if (currentStep === 2) {
       setCurrentStep(1);
-      setWalletAddress("");
     }
   };
 
@@ -131,7 +111,7 @@ export default function RequestFundsModal({
         event_id: eventId,
         organization_name: organizationName.trim(),
         claimed_amount: 0,
-        organization_aztec_address: walletAddress,
+        organization_aztec_address: address || "",
         reason: reason.trim(),
         claim_state: "voting",
         claims_hash: "",
@@ -196,7 +176,7 @@ export default function RequestFundsModal({
   };
 
   const resetForm = () => {
-    setCurrentStep(1);
+    setCurrentStep(isConnected ? 2 : 1);
     setOrganizationName("");
     setLogoFile(null);
     setLogoPreview("");
@@ -206,7 +186,6 @@ export default function RequestFundsModal({
     setIsSuccess(false);
     setIsProcessing(false);
     setApiResponse(null);
-    setWalletAddress("");
     setIsConnectingWallet(false);
     setConnectionStatus("");
   };
@@ -237,7 +216,7 @@ export default function RequestFundsModal({
           </div>
         )}
 
-        {walletAddress ? (
+        {isConnected ? (
           <div className="text-center space-y-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,8 +228,17 @@ export default function RequestFundsModal({
                 Wallet Connected
               </h4>
               <p className="text-gray-700 font-['Cinzel'] text-sm break-all">
-                {walletAddress}
+                {address?.substring(0, 6)}...{address?.substring(38)}
               </p>
+              <button
+                onClick={() => {
+                  disconnect();
+                  setCurrentStep(1);
+                }}
+                className="mt-2 text-xs text-gray-500 hover:text-gray-700 underline font-['Cinzel']"
+              >
+                Disconnect
+              </button>
             </div>
             <button
               onClick={() => setCurrentStep(2)}
@@ -260,25 +248,18 @@ export default function RequestFundsModal({
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="space-y-3 flex flex-col items-center">
-              <button
-                onClick={connectWallet}
-                disabled={isConnectingWallet}
-                className="bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 disabled:bg-gray-400/20 disabled:border-gray-400/30 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none font-['Cinzel'] flex items-center justify-center min-w-[240px]"
-              >
-                <img
-                  src="/MetaMask.png"
-                  alt="MetaMask"
-                  className="w-6 h-6 mr-3"
-                />
-                {isConnectingWallet ? "Connecting..." : "Connect MetaMask"}
-              </button>
-              <p className="text-gray-700 font-['Cinzel'] text-xs text-center italic px-2 max-w-xs">
-                Connect your wallet to submit funding requests
-              </p>
-            </div>
-          </div>
+          <>
+            <button
+              onClick={handleConnectWallet}
+              disabled={isConnectingWallet}
+              className="w-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 disabled:bg-gray-400/20 disabled:border-gray-400/30 text-gray-900 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none font-['Cinzel'] flex items-center justify-center"
+            >
+              {isConnectingWallet ? "Opening Wallet..." : "Connect VeWorld Wallet"}
+            </button>
+            <p className="text-gray-700 font-['Cinzel'] text-xs text-center italic px-2">
+              Connect your VeWorld wallet to continue
+            </p>
+          </>
         )}
       </div>
     </div>
@@ -293,6 +274,20 @@ export default function RequestFundsModal({
         <p className="text-gray-700 font-['Cinzel'] text-sm">
           Please provide your organization details
         </p>
+        {address && (
+          <div className="mt-1 text-gray-600 font-['Cinzel'] text-xs">
+            {address.substring(0, 6)}...{address.substring(38)}
+            <button
+              onClick={() => {
+                disconnect();
+                setCurrentStep(1);
+              }}
+              className="ml-2 text-gray-500 hover:text-gray-700 underline"
+            >
+              disconnect
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 flex flex-col justify-between min-h-0">
@@ -371,6 +366,20 @@ export default function RequestFundsModal({
         <div className="text-gray-800 font-['Cinzel'] text-sm">
           Organization: <span className="font-bold">{organizationName}</span>
         </div>
+        {address && (
+          <div className="mt-1 text-gray-600 font-['Cinzel'] text-xs">
+            {address.substring(0, 6)}...{address.substring(38)}
+            <button
+              onClick={() => {
+                disconnect();
+                setCurrentStep(1);
+              }}
+              className="ml-2 text-gray-500 hover:text-gray-700 underline"
+            >
+              disconnect
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 flex flex-col justify-between min-h-0">
