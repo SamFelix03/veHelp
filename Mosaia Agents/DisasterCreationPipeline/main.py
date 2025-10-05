@@ -93,7 +93,6 @@ def get_recent_disaster():
             "}\n\n"
             "MOST IMPORTANT: The output should NEVER have words like ```json and so on. Just the JSON styled output in the specified format should be present"
             "NOTE: The entire content including the title, description, readmore and location should be within 200 characters"
-            "DO NOT NEVER EVER mention the MONTH or DATE in which the disaster occurred"
             "Do not include anything else outside this JSON structure."
         )
 
@@ -104,7 +103,7 @@ def get_recent_disaster():
             web_search_options={},
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": "Find the most recent natural disaster in Bangalore"},
+                {"role": "user", "content": "Find the most recent natural disaster in the world"},
             ],
         )
 
