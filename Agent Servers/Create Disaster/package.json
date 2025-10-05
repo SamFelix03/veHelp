@@ -1,0 +1,31 @@
+{
+    "name": "gods-hand-disaster-creator",
+    "version": "1.0.0",
+    "description": "Express server for creating disasters on GodsHand contract",
+    "type": "module",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js",
+      "dev": "node server.js",
+      "create": "node create-disaster.js"
+    },
+    "dependencies": {
+      "@vechain/sdk-network": "^2.0.5",
+      "@vechain/ethers": "^4.0.27-5",
+      "ethers": "^6.15.0",
+      "express": "^4.18.2",
+      "cors": "^2.8.5",
+      "helmet": "^7.1.0",
+      "morgan": "^1.10.0"
+    },
+    "keywords": [
+      "vechain",
+      "blockchain",
+      "disaster-relief",
+      "smart-contract",
+      "express",
+      "api"
+    ],
+    "author": "GodsHand Team",
+    "license": "MIT"
+  }
