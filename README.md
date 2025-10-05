@@ -114,8 +114,7 @@ Traditional disaster relief platforms fail due to:
 
 ### 🔄 **Complete Workflow: From Detection to Deployment**
 
-<img width="1401" alt="Workflow Diagram" src="https://github.com/user-attachments/assets/a13c0ab3-7f7b-4a31-948f-e8952900300a" />
-
+<img width="1470" height="657" alt="Workflow Diagram" src="https://github.com/user-attachments/assets/7d56133a-ce31-4818-adcd-252fd74e7bac" />
 
 
 ### 🎯 **Step-by-Step Pipeline Execution**
@@ -146,7 +145,7 @@ Traditional disaster relief platforms fail due to:
 
 ### 🔄 **Complete User Journey: From Donation to Distribution**
 
-<img width="1436" alt="Screenshot 2025-07-06 at 4 02 10 AM" src="https://github.com/user-attachments/assets/1b1d4fc0-8ead-493c-a924-7b9b15c164be" />
+<img width="1470" height="657" alt="journey diagram" src="https://github.com/user-attachments/assets/72f19c8f-12ba-40ff-922c-b4ac69a101cb" />
 
 
 ### 🎯 **Step-by-Step Democratic Process**
