@@ -28,8 +28,8 @@ export class ZKPassportService {
   }> {
     try {
       const queryBuilder = await this.zkPassport.request({
-        name: "Gods Hand Voting",
-        logo: "https://gods-hand.vercel.app/assets/hand.png",
+        name: "VeHelp Voting",
+        logo: "https://vehelp.vercel.app/assets/hand.png",
         purpose: "Prove you are 18+ years old to vote on funding claims",
         scope: "adult",
         mode: "fast",

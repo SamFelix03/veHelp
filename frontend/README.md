@@ -1,20 +1,20 @@
-# God's Hand
+# VeHelp
 *"Where Heaven Hears, and Humanity Helps — One Gift at a Time."*
 
 ## 🌟 Introduction
 
-**God's Hand** is a revolutionary decentralized disaster relief platform that bridges the gap between urgent humanitarian needs and global generosity through cutting-edge AI technology and blockchain infrastructure. 
+**VeHelp** is a revolutionary decentralized disaster relief platform that bridges the gap between urgent humanitarian needs and global generosity through cutting-edge AI technology and blockchain infrastructure. 
 
 In a world where natural disasters strike without warning, traditional relief systems often fail due to..
 - bureaucratic delays
 - lack of transparency
 - inefficient fund allocation.
 
-God's Hand transforms this paradigm by deploying **autonomous AI agents** that continuously monitor global events, instantly assess disaster situations, and facilitate **rapid, transparent, and democratically-governed relief funding**.
+VeHelp transforms this paradigm by deploying **autonomous AI agents** that continuously monitor global events, instantly assess disaster situations, and facilitate **rapid, transparent, and democratically-governed relief funding**.
 
 Powered by **MOSAIA AI agents** running on **Phala's Trusted Execution Environments (TEE)** and secured by **Flow blockchain's smart contract infrastructure**, our platform ensures complete transparency, trustless operations, and community-driven decision making. Every donation, every claim, and every allocation is immutably recorded on the **Flow  blockchain**, governed by the collective wisdom of verified global citizens, creating a truly decentralized ecosystem that eliminates the systemic failures plaguing traditional relief systems.
 
-**Revolutionary Donor Incentives**: God's Hand introduces the world's first **disaster relief raffle system** powered by **Flow's Verifiable Random Function (VRF)**. Every donation, regardless of amount, automatically enters donors into a transparent, tamper-proof raffle to win 5% of the total funds raised for each disaster event, creating unprecedented donor engagement and participation incentives.
+**Revolutionary Donor Incentives**: VeHelp introduces the world's first **disaster relief raffle system** powered by **Flow's Verifiable Random Function (VRF)**. Every donation, regardless of amount, automatically enters donors into a transparent, tamper-proof raffle to win 5% of the total funds raised for each disaster event, creating unprecedented donor engagement and participation incentives.
 
 ## 🚨 The Problems in Current Systems
 
@@ -39,7 +39,7 @@ Traditional funding platforms face systemic issues that undermine their effectiv
 - **Absence of gamification** that could significantly increase participation rates
 - **No transparent reward systems** that could build donor loyalty and trust
 
-## 🔬 Why God's Hand (AI agents + Blockchain) is the Solution?
+## 🔬 Why VeHelp (AI agents + Blockchain) is the Solution?
 
 **1. Transparency & Accountability**
 - **Real-time fund tracking** on Flow blockchain eliminates opacity.
@@ -94,7 +94,7 @@ Traditional funding platforms face systemic issues that undermine their effectiv
 
 ## 🏗️ How It's Made: The Disaster Creation Pipeline
 
-God's Hand operates through a sophisticated **autonomous AI agent ecosystem** that transforms disaster detection from reactive to proactive. Here's how our **5-agent disaster creation pipeline** works:
+VeHelp operates through a sophisticated **autonomous AI agent ecosystem** that transforms disaster detection from reactive to proactive. Here's how our **5-agent disaster creation pipeline** works:
 
 ### 🔍 **Agent Architecture Overview**
 
@@ -134,10 +134,10 @@ God's Hand operates through a sophisticated **autonomous AI agent ecosystem** th
 **Phase 2: Analysis & Funding Determination**
 4. **Disaster Analysis Agent** combines news intelligence with weather data to assess disaster severity
 5. **Smart Contract Integration** converts USD funding requirements to FLOW tokens using real-time exchange rates
-6. **Flow Blockchain Deployment** writes disaster data (title, metadata, target_amount) to the GodsHand smart contract.
+6. **Flow Blockchain Deployment** writes disaster data (title, metadata, target_amount) to the VeHelp smart contract.
 
 **Phase 3: Public Outreach & Data Storage**
-7. **Tweet Agent** generates and publishes disaster awareness content with funding details and source links to our twitter account @godshandsupport.
+7. **Tweet Agent** generates and publishes disaster awareness content with funding details and source links to our twitter account @vehelpsupport.
 8. **DynamoDB Storage** maintains comprehensive disaster records with unique hashes and timestamps
 9. **Pipeline Completion** triggers next monitoring cycle and maintains continuous operation
 

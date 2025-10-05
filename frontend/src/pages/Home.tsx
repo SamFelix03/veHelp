@@ -64,7 +64,7 @@ export default function Home() {
         {/* Hero Text - appears when hand animation completes */}
         <div className="parallax-layer hero-text-container">
           <div className="hero-content">
-            <h1 className="hero-title">God&apos;s Hand</h1>
+            <h1 className="hero-title">veHelp</h1>
             <div className="scroll-indicator">
               <p>Scroll For Blessings</p>
               <div className="scroll-arrow">
