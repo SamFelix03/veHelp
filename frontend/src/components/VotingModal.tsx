@@ -158,6 +158,13 @@ export default function VotingModal({
         const agentVoteType = voteMapping[consensusData.majorityVote as keyof typeof voteMapping] || consensusData.majorityVote;
 
         let agentData: { txHash?: string; status?: string } | null = null;
+
+        console.log('request body :', JSON.stringify({
+          voteResult: agentVoteType,
+          uuid: claimId,
+          disasterHash: disasterHash
+        }));
+        
         try {
           const agentResponse = await fetch(`${votingApiUrl}/process-vote/`, {
             method: "POST",
