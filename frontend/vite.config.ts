@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [
     react(),
     nodePolyfills({
+      // Enable all polyfills
+      include: ['buffer', 'process', 'util', 'stream', 'events', 'crypto', 'path', 'fs', 'os'],
       globals: {
         Buffer: true,
         global: true,
@@ -18,23 +20,36 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Add explicit polyfills for Node.js modules
+      buffer: "buffer",
+      process: "process/browser",
+      util: "util",
+      stream: "stream-browserify",
+      crypto: "crypto-browserify",
     },
   },
   define: {
     global: "globalThis",
+    "process.env": {},
   },
   optimizeDeps: {
-    include: ["buffer"],
+    include: ["buffer", "process"],
     esbuildOptions: {
-      target: "esnext", // Use latest target
+      target: "esnext",
+      define: {
+        global: "globalThis",
+      },
     },
   },
   build: {
-    target: "esnext", // Support import assertions
-    sourcemap: true, // Enable sourcemaps for debugging
+    target: "esnext",
+    sourcemap: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
-        manualChunks: undefined, // Prevent chunk loading issues
+        manualChunks: undefined,
       },
     },
   },
