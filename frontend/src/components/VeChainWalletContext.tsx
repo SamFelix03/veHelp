@@ -43,9 +43,6 @@ export const VeChainWalletProvider: React.FC<{ children: React.ReactNode }> = ({
         node: 'https://testnet.vechain.org/',
         walletConnectOptions,
         usePersistence: true,
-        v2Api: {
-          enabled: true,
-        },
       });
 
       // Subscribe to wallet state changes
