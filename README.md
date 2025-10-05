@@ -152,26 +152,35 @@ Traditional disaster relief platforms fail due to:
 
 #### **Step 1: User Donation with VeWorld**
 1. **VET Donation**: Users donate any amount of VET tokens through the intuitive DonationModal interface via VeWorld wallet
+
 2. **Fee Delegation**: Gas fees (VTHO) are handled by a separate paymaster, ensuring donors only pay VET without worrying about gas
+
 3. **B3TR Rewards**: Donors receive B3TR token rewards for their contributions, incentivizing continued participation
+
 4. **Transparent Tracking**: All donations are recorded immutably on VeChain blockchain with real-time progress updates
+
 
 #### **Step 2: NGO Funding Claims & AI Verification**
 5. **Claim Submission**: Registered NGOs and relief organizations submit detailed funding requests through RequestFundsModal
+
 6. **Fact-Check Agent Analysis**: AI agent `(ID: 686656aaf14ab5c885e431ce)` analyzes claims using:
    - **Cross-referencing** with original disaster data and news sources
    - **Feasibility assessment** of proposed relief activities
    - **Amount calculation** based on disaster severity, amount present in the disaster pool of that specific disaster and organizational capacity
    - **Evidence validation** for legitimacy verification
+
 7. **Automatic Approval/Rejection**: Claims are instantly approved for voting or rejected based on AI analysis
+
 
 #### **Step 3: Democratic Community Voting**
 8. **zkPassport Verification**: Voters must prove they are 18+ using zero-knowledge passport verification
+
 9. **Anonymous Voting**: Verified voters cast anonymous votes with four options:
    - **Accept**: Approve funding as requested
    - **Reject**: Deny funding entirely  
    - **Raise Amount**: Approve but suggest higher funding
    - **Lower Amount**: Approve but suggest reduced funding
+
 10. **Consensus Mechanism**: Minimum 3 votes required for decision; majority vote determines outcome
 
 #### **Step 4: Automated Fund Distribution**
