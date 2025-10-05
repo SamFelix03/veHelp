@@ -20,7 +20,7 @@ export class ZKPassportService {
         uniqueIdentifier: string | undefined;
         verified: boolean;
         result: QueryResult;
-        queryResultErrors?: QueryResultErrors;
+        queryResultErrors?: Partial<QueryResultErrors>;
       }) => void
     ) => void;
     onReject: (callback: () => void) => void;

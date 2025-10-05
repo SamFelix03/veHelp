@@ -1,0 +1,65 @@
+
+> standalone-godshand-script@1.0.0 interact
+> node standalone-interact-godshand-final.js
+
+🔗 Connecting to GodsHand contract on VeChain Testnet...
+
+👤 Owner address: 0xa58b170100bFEb9094112669fE7856a289389a40
+👤 Donor 1 address: 0xd1336B9A69675335f40917595EB3e39EEF40D382
+👤 Donor 2 address: 0xa6359c4d28518C176CAb2C4DF7452318CBd2e800
+
+📊 INITIAL CONTRACT STATE
+==================================================
+Total Disasters: 6
+Contract Balance: 25.0 VET
+Contract Owner: 0x783DE01F06b4F2a068A7b3Bb6ff3db821A08f8c1
+
+🆕 CREATING A NEW DISASTER
+==================================================
+Creating disaster with:
+- Title: Earthquake Relief Fund
+- Target: 100.0 VET
+✅ Transaction sent! Waiting for confirmation...
+✅ Disaster created!
+Disaster Hash: 0xaa4440a846b2d09ef69181764e452dccdb5b5660f703f52256b6720336f26ea9
+
+📋 DISASTER DETAILS
+==================================================
+Title: Earthquake Relief Fund
+Metadata: {"location":"Test Region","severity":"High","date":"2025-10-04T19:05:17.633Z","description":"Emergency relief fund for earthquake victims"}
+Target Amount: 100.0 VET
+Total Donated: 0.0 VET
+Creator: 0xa58b170100bFEb9094112669fE7856a289389a40
+Timestamp: 10/5/2025, 12:35:30 AM
+Is Active: true
+
+💰 MAKING DONATIONS
+==================================================
+Donor 1 donating 10.0 VET...
+❌ Error: T [Error]: Method 'validateNumericKindData()' failed.
+-Reason: 'Validation error: Input in tx.clauses.#0.value must be a string or number.'
+-Parameters: 
+	{
+  "context": "tx.clauses.#0.value",
+  "data": {
+    "data": "10000000000000000000n"
+  }
+}
+    at Be (/Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:38923)
+    at y.data (/Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:42370)
+    at n.packData (/Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37395)
+    at /Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37455
+    at Array.map (<anonymous>)
+    at n.packData (/Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37443)
+    at /Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37703
+    at Array.map (<anonymous>)
+    at n.packData (/Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37687)
+    at /Users/sam/VeHelp/vechain-hardhat/scripts/node_modules/@vechain/sdk-core/dist/index.js:1:37455 {
+  methodName: 'validateNumericKindData()',
+  errorMessage: 'Validation error: Input in tx.clauses.#0.value must be a string or number.',
+  data: {
+    context: 'tx.clauses.#0.value',
+    data: { data: 10000000000000000000n }
+  },
+  innerError: undefined
+}

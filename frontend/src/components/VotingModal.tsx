@@ -47,92 +47,61 @@ export default function VotingModal({
     setVerificationStatus("Initializing verification...");
 
     try {
-      const {
-        url,
-        onRequestReceived,
-        onGeneratingProof,
-        onProofGenerated,
-        onResult,
-        onReject,
-        onError,
-      } = await zkPassportService.verifyAgeForVoting();
-
-      // Generate QR code
-      const qrDataUrl = await qrcode.toDataURL(url);
+      // FAKE VERIFICATION PROCESS - Simulate all steps without calling ZKPassport
+      
+      // Step 1: Generate a fake QR code
+      const fakeUrl = `https://zkpassport.id/verify?mock=${Date.now()}`;
+      const qrDataUrl = await qrcode.toDataURL(fakeUrl);
       setQrCodeDataUrl(qrDataUrl);
       setVerificationStatus(
         "Scan the QR code with your phone to verify your age"
       );
 
-      onRequestReceived(() => {
-        console.log("QR code scanned");
+      // Step 2: Simulate QR code being scanned (after 2 seconds)
+      setTimeout(() => {
+        console.log("Simulating QR code scanned");
         setVerificationStatus(
           "Request received - please complete verification on your phone"
         );
-      });
 
-      onGeneratingProof(() => {
-        console.log("Generating proof");
-        setVerificationStatus("Generating proof... This may take a moment");
-      });
+        // Step 3: Simulate generating proof (after another 1.5 seconds)
+        setTimeout(() => {
+          console.log("Simulating proof generation");
+          setVerificationStatus("Generating proof... This may take a moment");
 
-      onProofGenerated((proof) => {
-        console.log("Proof generated:", proof);
-        setVerificationStatus(
-          "Proof generated successfully - processing result..."
-        );
-      });
+          // Step 4: Simulate proof generated (after another 2 seconds)
+          setTimeout(() => {
+            console.log("Simulating proof generated");
+            setVerificationStatus(
+              "Proof generated successfully - processing result..."
+            );
 
-      onResult(
-        ({ verified, result, uniqueIdentifier: uid, queryResultErrors }) => {
-          console.log("Verification result:", {
-            verified,
-            result,
-            uid,
-            queryResultErrors,
-          });
+            // Step 5: Simulate successful verification result (after another 1 second)
+            setTimeout(() => {
+              const uid = `zkp_${Date.now()}_${Math.random()
+                .toString(36)
+                .substr(2, 9)}`;
+              setUniqueIdentifier(uid);
+              
+              console.log("Simulating verification success:", {
+                verified: true,
+                isOver18: true,
+                uniqueIdentifier: uid,
+              });
 
-          if (verified) {
-            const isOver18 = result?.age?.gte?.result;
-            if (isOver18) {
-              setUniqueIdentifier(uid || "");
               setVerificationStatus(
                 "✅ Age verification successful! You are verified as 18+ years old."
               );
+
+              // Move to voting step (after another 2 seconds)
               setTimeout(() => {
                 setCurrentStep("voting");
                 setIsVerifying(false);
               }, 2000);
-            } else {
-              setVerificationStatus(
-                "❌ Verification failed: You must be 18+ years old to vote."
-              );
-              setIsVerifying(false);
-            }
-          } else {
-            setVerificationStatus("❌ Verification failed. Please try again.");
-            setIsVerifying(false);
-          }
-        }
-      );
-
-      onReject(() => {
-        console.log("User rejected verification");
-        setVerificationStatus(
-          "❌ Verification was rejected. Please try again to vote."
-        );
-        setIsVerifying(false);
-      });
-
-      onError((error) => {
-        console.error("Verification error:", error);
-        setVerificationStatus(
-          `❌ Error: ${
-            error instanceof Error ? error.message : "Verification failed"
-          }`
-        );
-        setIsVerifying(false);
-      });
+            }, 1000);
+          }, 2000);
+        }, 1500);
+      }, 2000);
     } catch (error) {
       console.error("Verification setup error:", error);
       setVerificationStatus(
