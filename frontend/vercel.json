@@ -4,12 +4,7 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": null,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
+
   "routes": [
     {
       "src": "/(.*)",
