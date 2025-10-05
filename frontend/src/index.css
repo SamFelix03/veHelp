@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* VeChain DAppKit UI styles */
+@import '@vechain/dapp-kit-ui';
+
 /* Global styles */
 body {
   margin: 0;

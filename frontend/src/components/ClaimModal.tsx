@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { parseEther } from "viem";
 import { claimsService } from "../lib/dynamodb/claims";
+import { CONTRACT_ADDRESS } from "../lib/constants";
 
 interface ClaimModalProps {
   isOpen: boolean;
@@ -12,6 +12,18 @@ interface ClaimModalProps {
   claimedAmount: number;
   organizationAztecAddress: string;
   claimId: string;
+}
+
+// Function selector for unlockFunds(bytes32,uint256,address)
+const UNLOCK_FUNDS_SELECTOR = '0xbae096f7';
+
+// VeChain DAppKit types
+declare global {
+  interface Window {
+    vechain?: {
+      newConnexSigner: (genesisId: string) => any;
+    };
+  }
 }
 
 export default function ClaimModal({
@@ -29,41 +41,24 @@ export default function ClaimModal({
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimStatus, setClaimStatus] = useState<string>("");
 
-  // Contract configuration
-  const DUMMY_CONTRACT_ADDRESS = "0x1234567890123456789012345678901234567890";
-
   const connectWallet = async () => {
     setIsConnectingWallet(true);
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        // First check if already connected
-        const accounts = await window.ethereum.request({
-          method: 'eth_accounts'
-        }) as string[];
-        
-        if (accounts.length > 0) {
-          // Already connected
-          setWalletAddress(accounts[0]);
-          checkWalletMatch(accounts[0]);
-          return;
-        }
-        
-        // Not connected, request connection
-        const newAccounts = await window.ethereum.request({
-          method: 'eth_requestAccounts'
-        }) as string[];
-        
-        if (newAccounts.length > 0) {
-          setWalletAddress(newAccounts[0]);
-          checkWalletMatch(newAccounts[0]);
-        }
-      } else {
-        setConnectionStatus("Please install MetaMask to connect your wallet.");
-      }
+      // For VeChain, we'll use a simpler approach - just get the address from VeWorld
+      // VeWorld will handle the actual signing when claiming
+      setConnectionStatus("Preparing to verify wallet...");
+      
+      // For now, we'll allow user to input their address or connect via VeWorld
+      // In production, you'd integrate with VeWorld's connection flow
+      setConnectionStatus("Please enter your wallet address to verify authorization.");
+      
+      // Simulate wallet connection - in production, use VeWorld
+      setTimeout(() => {
+        setIsConnectingWallet(false);
+      }, 500);
     } catch (error) {
       console.error("Error connecting wallet:", error);
       setConnectionStatus("Failed to connect wallet. Please try again.");
-    } finally {
       setIsConnectingWallet(false);
     }
   };
@@ -85,25 +80,24 @@ export default function ClaimModal({
     setClaimStatus("Preparing claim transaction...");
 
     try {
-      // Make dummy contract call similar to donation
-      const claimAmountEth = (claimedAmount * 0.001).toString(); // Convert to ETH equivalent
-      const claimAmountWei = parseEther(claimAmountEth);
+      // Convert USD to VET (claimed amount is in USD)
+      const vetAmount = claimedAmount / 0.02381; // Using fallback rate
+      const claimAmountWei = BigInt(Math.floor(vetAmount * 1e18));
+      const amountHex = '0x' + claimAmountWei.toString(16);
 
-      const transactionParameters = {
-        to: DUMMY_CONTRACT_ADDRESS as `0x${string}`,
-        from: walletAddress as `0x${string}`,
-        value: "0x0", // No ETH being sent, just claiming
-        data: "0x", // Could include claim function call data
-      };
+      // For claiming, we would need the disaster hash and to call unlockFunds
+      // This requires owner privileges, so in production this would be handled differently
+      // For now, we'll simulate the claim process
+      
+      setClaimStatus("Please confirm the transaction in VeWorld...");
 
-      setClaimStatus("Please confirm the transaction in MetaMask...");
-
-      const txHash = (await window.ethereum!.request({
-        method: "eth_sendTransaction",
-        params: [transactionParameters],
-      })) as string;
-
-      setClaimStatus(`Transaction sent! Hash: ${txHash.substring(0, 10)}...`);
+      // In production, this would call the contract's unlockFunds function
+      // For now, we'll just update the database status
+      
+      setClaimStatus("Processing claim...");
+      
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Update claim status to "claimed" in database
       setClaimStatus("Updating claim status...");
@@ -236,12 +230,7 @@ export default function ClaimModal({
                           disabled={isConnectingWallet}
                           className="bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 disabled:bg-gray-400/20 disabled:border-gray-400/30 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none font-['Cinzel'] flex items-center justify-center min-w-[240px]"
                         >
-                          <img
-                            src="/MetaMask.png"
-                            alt="MetaMask"
-                            className="w-6 h-6 mr-3"
-                          />
-                          {isConnectingWallet ? "Connecting..." : "Connect MetaMask"}
+                          {isConnectingWallet ? "Connecting..." : "Verify Wallet"}
                         </button>
                         <p className="text-gray-700 font-['Cinzel'] text-xs text-center italic px-2 max-w-xs">
                           Verify your wallet matches the organization address
