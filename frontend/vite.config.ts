@@ -31,6 +31,12 @@ export default defineConfig({
   },
   build: {
     target: "esnext", // Support import assertions
+    sourcemap: true, // Enable sourcemaps for debugging
+    rollupOptions: {
+      output: {
+        manualChunks: undefined, // Prevent chunk loading issues
+      },
+    },
   },
   server: {
     headers: {

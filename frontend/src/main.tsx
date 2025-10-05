@@ -4,13 +4,16 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import { VeChainWalletProvider } from "./components/VeChainWalletContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <VeChainWalletProvider>
-        <App />
-      </VeChainWalletProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <VeChainWalletProvider>
+          <App />
+        </VeChainWalletProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 );
