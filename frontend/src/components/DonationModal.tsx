@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ethers } from "ethers";
-import { convertUsdToFlow, formatFlowAmount} from "../lib/utils";
-import { CONTRACT_ADDRESS, CONTRACT_ABI, FLOW_TESTNET_CONFIG } from "../lib/constants";
+import { convertUsdToVet, formatVetAmount} from "../lib/utils";
+import { CONTRACT_ADDRESS } from "../lib/constants";
+import { useVeChainWallet } from "./VeChainWalletContext";
+import { DAppKitUI } from "@vechain/dapp-kit-ui";
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -14,15 +15,8 @@ interface DonationModalProps {
   refreshDonations?: () => Promise<void>;
 }
 
-interface EthereumProvider {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-}
-
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider;
-  }
-}
+// Function selector for donateToDisaster(bytes32)
+const DONATE_SELECTOR = '0x4cc3da6b';
 
 export default function DonationModal({
   isOpen,
@@ -31,35 +25,42 @@ export default function DonationModal({
   disasterHash,
   refreshDonations,
 }: DonationModalProps) {
+  const { address, isConnected, connect, disconnect } = useVeChainWallet();
   const [step, setStep] = useState<"wallet" | "amount" | "success">("wallet");
   const [donationAmount, setDonationAmount] = useState<string>("");
-  const [flowAmount, setFlowAmount] = useState<number>(0);
+  const [vetAmount, setVetAmount] = useState<number>(0);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>("");
-  const [connectedAccount, setConnectedAccount] = useState<string>("");
   const [isConvertingCurrency, setIsConvertingCurrency] = useState(false);
   const [txHash, setTxHash] = useState<string>("");
   const [donatedAmount, setDonatedAmount] = useState<string>("");
   const [totalDonated, setTotalDonated] = useState<string>("");
 
-  // Convert USD to FLOW when donation amount changes
+  // Auto-proceed to amount step if already connected
+  useEffect(() => {
+    if (isOpen && isConnected && step === "wallet") {
+      setStep("amount");
+    }
+  }, [isOpen, isConnected]);
+
+  // Convert USD to VET when donation amount changes
   useEffect(() => {
     const convertCurrency = async () => {
       if (donationAmount && parseFloat(donationAmount) > 0) {
         setIsConvertingCurrency(true);
         try {
           const usdAmount = parseFloat(donationAmount);
-          const flowTokens = await convertUsdToFlow(usdAmount);
-          setFlowAmount(flowTokens);
+          const vetTokens = await convertUsdToVet(usdAmount);
+          setVetAmount(vetTokens);
         } catch (error) {
           console.error("Currency conversion failed:", error);
-          // Use fallback rate
-          setFlowAmount(parseFloat(donationAmount) * 1);
+          // Use fallback rate: $0.02381 per VET
+          setVetAmount(parseFloat(donationAmount) / 0.02381);
         } finally {
           setIsConvertingCurrency(false);
         }
       } else {
-        setFlowAmount(0);
+        setVetAmount(0);
       }
     };
 
@@ -67,156 +68,45 @@ export default function DonationModal({
     return () => clearTimeout(debounceTimer);
   }, [donationAmount]);
 
-  const switchToFlowTestnet = async () => {
-    if (!window.ethereum) {
-      setConnectionStatus("MetaMask not found");
-      return false;
-    }
-
-    try {
-      setConnectionStatus("Switching to Flow Testnet...");
-      
-      // Try to switch to Flow testnet
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: FLOW_TESTNET_CONFIG.chainId }],
-      });
-
-      setConnectionStatus("Connected to Flow Testnet!");
-      
-      setTimeout(() => {
-        setStep("amount");
-        setConnectionStatus("");
-        setIsConnecting(false);
-      }, 1500);
-      
-      return true;
-    } catch (switchError: any) {
-      // Chain doesn't exist in MetaMask, add it
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: FLOW_TESTNET_CONFIG.chainId,
-                chainName: FLOW_TESTNET_CONFIG.chainName,
-                nativeCurrency: FLOW_TESTNET_CONFIG.nativeCurrency,
-                rpcUrls: [FLOW_TESTNET_CONFIG.rpcUrl],
-                blockExplorerUrls: [FLOW_TESTNET_CONFIG.blockExplorer],
-              },
-            ],
-          });
-
-          setConnectionStatus("Added and connected to Flow Testnet!");
-          
-          setTimeout(() => {
-            setStep("amount");
-            setConnectionStatus("");
-            setIsConnecting(false);
-          }, 1500);
-          
-          return true;
-        } catch (addError) {
-          console.error("Failed to add Flow testnet:", addError);
-          setConnectionStatus("Failed to add Flow Testnet network");
-          setIsConnecting(false);
-          return false;
-        }
-      } else {
-        console.error("Failed to switch to Flow testnet:", switchError);
-        setConnectionStatus("Failed to switch to Flow Testnet");
-        setIsConnecting(false);
-        return false;
-      }
-    }
-  };
-
   const handleDonate = async () => {
-    if (!donationAmount || parseFloat(donationAmount) <= 0 || flowAmount <= 0) return;
+    if (!donationAmount || parseFloat(donationAmount) <= 0 || vetAmount <= 0) return;
+
+    if (!DAppKitUI.wallet.state.address) {
+      setConnectionStatus("Please connect your wallet first");
+      connect();
+      return;
+    }
 
     setIsConnecting(true);
     setConnectionStatus("Preparing transaction...");
 
     try {
-      if (!window.ethereum) {
-        throw new Error("MetaMask not found");
-      }
-
+      // Convert VET to wei (1 VET = 10^18 wei)
+      const amountInWei = BigInt(Math.floor(vetAmount * 1e18));
+      const amountHex = '0x' + amountInWei.toString(16);
+      
       // Ensure disaster hash has 0x prefix
       let formattedDisasterHash = disasterHash;
       if (!disasterHash.startsWith('0x')) {
         formattedDisasterHash = '0x' + disasterHash;
       }
+      
+      const encodedData = DONATE_SELECTOR + formattedDisasterHash.slice(2);
 
-      // Create ethers provider and signer
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      setConnectionStatus("Please confirm the transaction in VeWorld...");
 
-      // Verify we're on the correct network
-      const network = await provider.getNetwork();
-
-      if (network.chainId !== 545n) {
-        throw new Error(`Wrong network. Expected Flow Testnet (545), got ${network.chainId}`);
-      }
-
-      // Create contract instance
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-
-      setConnectionStatus("Please confirm the transaction in MetaMask...");
-
-      // Convert FLOW amount to wei using parseEther
-      const donationAmountWei = ethers.parseEther(flowAmount.toString());
-
-      // Verify disaster exists before donating
-      try {
-        const disasterDetails = await contract.getDisasterDetails(formattedDisasterHash);
-
-        if (!disasterDetails[6]) {
-          throw new Error('Disaster is not active');
-        }
-      } catch (verifyError) {
-        throw new Error('Invalid disaster hash or disaster not found');
-      }
-
-      // Call the contract function
-      const tx = await contract.donateToDisaster(formattedDisasterHash, {
-        value: donationAmountWei
+      const result = await DAppKitUI.signer?.sendTransaction({
+        clauses: [{
+          to: CONTRACT_ADDRESS,
+          value: amountHex,
+          data: encodedData,
+        }],
+        comment: `Donate ${vetAmount} VET to veHelp`,
       });
 
-      setConnectionStatus("Transaction submitted! Waiting for confirmation...");
-      setTxHash(tx.hash);
-
-      // Wait for transaction receipt
-      const receipt = await tx.wait();
-
-      setConnectionStatus("Transaction confirmed! Processing events...");
-
-      // Check if DonationMade event was emitted
-      const event = receipt.logs.find((log: any) => {
-        try {
-          const parsed = contract.interface.parseLog(log);
-          return parsed?.name === 'DonationMade';
-        } catch {
-          return false;
-        }
-      });
-
-      if (event) {
-        try {
-          const parsed = contract.interface.parseLog(event);
-          if (parsed && parsed.args) {
-            const donatedAmountFormatted = ethers.formatEther(parsed.args.amount);
-            const totalDonatedFormatted = ethers.formatEther(parsed.args.totalDonated);
-            
-            setDonatedAmount(donatedAmountFormatted);
-            setTotalDonated(totalDonatedFormatted);
-          }
-        } catch (error) {
-          console.error("Error parsing event:", error);
-        }
-      }
-
+      setTxHash((result as any)?.txid || '');
+      setDonatedAmount(vetAmount.toFixed(4));
+      
       setConnectionStatus("Donation successful!");
       setStep("success");
       setIsConnecting(false);
@@ -228,18 +118,9 @@ export default function DonationModal({
     } catch (error: any) {
       console.error("Donation error:", error);
       
-      // More detailed error handling
       let errorMessage = "Transaction failed";
       
-      if (error.code === 'CALL_EXCEPTION') {
-        errorMessage = "Transaction failed - please check disaster hash and try again";
-      } else if (error.code === 'INSUFFICIENT_FUNDS') {
-        errorMessage = "Insufficient FLOW balance";
-      } else if (error.code === 'USER_REJECTED') {
-        errorMessage = "Transaction cancelled by user";
-      } else if (error.code === 'NETWORK_ERROR') {
-        errorMessage = "Network error - please check your connection to Flow testnet";
-      } else if (error.message) {
+      if (error.message) {
         errorMessage = error.message;
       }
       
@@ -248,38 +129,17 @@ export default function DonationModal({
     }
   };
 
-  const connectMetamask = async () => {
+  const handleConnectWallet = async () => {
     setIsConnecting(true);
-    setConnectionStatus("Connecting to MetaMask...");
+    setConnectionStatus("Opening wallet connection...");
 
     try {
-      if (!window.ethereum) {
-        setConnectionStatus(
-          "MetaMask not found. Please install MetaMask extension."
-        );
-        setIsConnecting(false);
-        return;
-      }
-
-      const accounts = (await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })) as string[];
-
-      if (accounts.length === 0) {
-        setConnectionStatus("No accounts found. Please unlock MetaMask.");
-        setIsConnecting(false);
-        return;
-      }
-
-      setConnectedAccount(accounts[0]);
-      setConnectionStatus("Connected! Switching to Flow Testnet...");
-
-      // Automatically switch to Flow testnet after connecting
-      await switchToFlowTestnet();
+      connect();
+      setConnectionStatus("Please connect your wallet...");
     } catch (error: unknown) {
-      console.error("MetaMask connection error:", error);
+      console.error("Error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Connection failed";
+        error instanceof Error ? error.message : "Failed to connect";
       setConnectionStatus(`Error: ${errorMessage}`);
       setIsConnecting(false);
     }
@@ -293,15 +153,12 @@ export default function DonationModal({
     }
     setConnectionStatus("");
     setIsConnecting(false);
-    if (step === "wallet") {
-      setConnectedAccount("");
-    }
   };
 
   const handleNewDonation = () => {
     setStep("amount");
     setDonationAmount("");
-    setFlowAmount(0);
+    setVetAmount(0);
     setTxHash("");
     setDonatedAmount("");
     setTotalDonated("");
@@ -309,12 +166,11 @@ export default function DonationModal({
   };
 
   const resetModal = () => {
-    setStep("wallet");
+    setStep(isConnected ? "amount" : "wallet");
     setDonationAmount("");
-    setFlowAmount(0);
+    setVetAmount(0);
     setConnectionStatus("");
     setIsConnecting(false);
-    setConnectedAccount("");
     setIsConvertingCurrency(false);
     setTxHash("");
     setDonatedAmount("");
@@ -416,7 +272,7 @@ export default function DonationModal({
                         For: {eventTitle}
                       </div>
                       <div className="mt-2 text-gray-800 font-['Cinzel'] text-xs">
-                        Flow Testnet Network
+                        VeChain Testnet Network
                       </div>
                     </div>
 
@@ -430,21 +286,51 @@ export default function DonationModal({
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <button
-                          onClick={connectMetamask}
-                          disabled={isConnecting}
-                          className="w-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 disabled:bg-gray-400/20 disabled:border-gray-400/30 text-gray-900 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none font-['Cinzel'] flex items-center justify-center"
-                        >
-                          <img
-                            src="/MetaMask.png"
-                            alt="MetaMask"
-                            className="w-6 h-6 mr-3"
-                          />
-                          {isConnecting ? "Connecting..." : "Connect MetaMask"}
-                        </button>
-                        <p className="text-gray-700 font-['Cinzel'] text-xs text-center italic px-2">
-                          Connect to Flow Testnet for donations
-                        </p>
+                        {isConnected ? (
+                          <div className="text-center space-y-4">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-bold text-gray-900 font-['Cinzel'] mb-2">
+                                Wallet Connected
+                              </h4>
+                              <p className="text-gray-700 font-['Cinzel'] text-sm break-all">
+                                {address?.substring(0, 6)}...{address?.substring(38)}
+                              </p>
+                              <button
+                                onClick={() => {
+                                  disconnect();
+                                  setStep("wallet");
+                                }}
+                                className="mt-2 text-xs text-gray-500 hover:text-gray-700 underline font-['Cinzel']"
+                              >
+                                Disconnect
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => setStep("amount")}
+                              className="w-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 text-gray-900 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] font-['Cinzel']"
+                            >
+                              Continue to Donation Amount
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={handleConnectWallet}
+                              disabled={isConnecting}
+                              className="w-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 disabled:bg-gray-400/20 disabled:border-gray-400/30 text-gray-900 font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none font-['Cinzel'] flex items-center justify-center"
+                            >
+                              {isConnecting ? "Opening Wallet..." : "Connect VeWorld Wallet"}
+                            </button>
+                            <p className="text-gray-700 font-['Cinzel'] text-xs text-center italic px-2">
+                              Connect your VeWorld wallet to continue
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </>
@@ -458,8 +344,22 @@ export default function DonationModal({
                         Enter Donation Amount
                       </h2>
                       <div className="mt-2 text-gray-800 font-['Cinzel'] text-sm">
-                        Connected: <span className="font-bold">Flow Testnet</span>
+                        Network: <span className="font-bold">VeChain Testnet</span>
                       </div>
+                      {address && (
+                        <div className="mt-1 text-gray-600 font-['Cinzel'] text-xs">
+                          {address.substring(0, 6)}...{address.substring(38)}
+                          <button
+                            onClick={() => {
+                              disconnect();
+                              setStep("wallet");
+                            }}
+                            className="ml-2 text-gray-500 hover:text-gray-700 underline"
+                          >
+                            disconnect
+                          </button>
+                        </div>
+                      )}
                       <div className="mt-1 text-gray-800 font-['Cinzel'] text-xs italic">
                         For: {eventTitle}
                       </div>
@@ -492,18 +392,18 @@ export default function DonationModal({
                         />
                       </div>
                       
-                      {/* Flow Amount Display */}
+                      {/* VET Amount Display */}
                       {donationAmount && parseFloat(donationAmount) > 0 && (
                         <div className="mt-3 p-3 bg-amber-100/30 rounded-lg border border-amber-200/50">
                           <div className="text-center">
                             <p className="text-gray-800 font-['Cinzel'] text-sm">
-                              Equivalent in FLOW:
+                              Equivalent in VET:
                             </p>
                             <p className="text-gray-900 font-['Cinzel'] text-lg font-bold">
                               {isConvertingCurrency ? (
                                 <span className="animate-pulse">Converting...</span>
                               ) : (
-                                formatFlowAmount(flowAmount)
+                                formatVetAmount(vetAmount)
                               )}
                             </p>
                           </div>
@@ -516,7 +416,7 @@ export default function DonationModal({
                       disabled={
                         !donationAmount ||
                         parseFloat(donationAmount) <= 0 ||
-                        flowAmount <= 0 ||
+                        vetAmount <= 0 ||
                         isConnecting ||
                         isConvertingCurrency
                       }
@@ -568,7 +468,7 @@ export default function DonationModal({
                           {txHash}
                         </p>
                         <a
-                          href={`https://evm-testnet.flowscan.io/tx/${txHash}`}
+                          href={`https://explore-testnet.vechain.org/transactions/${txHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-amber-800 hover:text-amber-900 font-['Cinzel'] text-xs underline mt-1 inline-block"
@@ -584,7 +484,7 @@ export default function DonationModal({
                             Your Donation:
                           </p>
                           <p className="text-gray-900 font-['Cinzel'] text-lg font-bold">
-                            {parseFloat(donatedAmount).toFixed(6)} FLOW
+                            {parseFloat(donatedAmount).toFixed(4)} VET
                           </p>
                         </div>
                       )}
@@ -596,7 +496,7 @@ export default function DonationModal({
                             Total Raised:
                           </p>
                           <p className="text-gray-900 font-['Cinzel'] text-lg font-bold">
-                            {parseFloat(totalDonated).toFixed(6)} FLOW
+                            {totalDonated ? parseFloat(totalDonated).toFixed(4) : '0.0000'} VET
                           </p>
                         </div>
                       )}

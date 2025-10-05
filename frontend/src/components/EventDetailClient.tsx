@@ -18,7 +18,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import RequestFundsModal from "./RequestFundsModal";
 import VotingModal from "./VotingModal";
 import ClaimModal from "./ClaimModal";
-import LotteryCountdown from "./LotteryCountdown";
 import { lotteryTimerService } from "../lib/services/lotteryTimer";
 
 interface EventDetailClientProps {
@@ -395,9 +394,6 @@ export default function EventDetailClient({ eventId }: EventDetailClientProps) {
                 </div>
               </div>
             </div>
-
-            {/* Lottery Countdown Component */}
-            <LotteryCountdown event={event} />
 
             {/* Approved Claims Section - Separate Important Section */}
             {claims.filter(claim => claim.claim_state === "approved").length > 0 && (

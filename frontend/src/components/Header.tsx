@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ hidden = false }) => {
               onClick={handleLogoClick}
               style={{ cursor: "pointer" }}
             >
-              God&apos;s Hand
+              veHelp
             </h1>
           </div>
 
