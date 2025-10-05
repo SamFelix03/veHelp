@@ -114,8 +114,7 @@ Traditional disaster relief platforms fail due to:
 
 ### 🔄 **Complete Workflow: From Detection to Deployment**
 
-<img width="1401" alt="Workflow Diagram" src="https://github.com/user-attachments/assets/a13c0ab3-7f7b-4a31-948f-e8952900300a" />
-
+<img width="1470" height="657" alt="Workflow Diagram" src="https://github.com/user-attachments/assets/7d56133a-ce31-4818-adcd-252fd74e7bac" />
 
 
 ### 🎯 **Step-by-Step Pipeline Execution**
@@ -146,33 +145,42 @@ Traditional disaster relief platforms fail due to:
 
 ### 🔄 **Complete User Journey: From Donation to Distribution**
 
-<img width="1436" alt="Screenshot 2025-07-06 at 4 02 10 AM" src="https://github.com/user-attachments/assets/1b1d4fc0-8ead-493c-a924-7b9b15c164be" />
+<img width="1470" height="657" alt="journey diagram" src="https://github.com/user-attachments/assets/72f19c8f-12ba-40ff-922c-b4ac69a101cb" />
 
 
 ### 🎯 **Step-by-Step Democratic Process**
 
 #### **Step 1: User Donation with VeWorld**
 1. **VET Donation**: Users donate any amount of VET tokens through the intuitive DonationModal interface via VeWorld wallet
+
 2. **Fee Delegation**: Gas fees (VTHO) are handled by a separate paymaster, ensuring donors only pay VET without worrying about gas
+
 3. **B3TR Rewards**: Donors receive B3TR token rewards for their contributions, incentivizing continued participation
+
 4. **Transparent Tracking**: All donations are recorded immutably on VeChain blockchain with real-time progress updates
+
 
 #### **Step 2: NGO Funding Claims & AI Verification**
 5. **Claim Submission**: Registered NGOs and relief organizations submit detailed funding requests through RequestFundsModal
+
 6. **Fact-Check Agent Analysis**: AI agent `(ID: 686656aaf14ab5c885e431ce)` analyzes claims using:
    - **Cross-referencing** with original disaster data and news sources
    - **Feasibility assessment** of proposed relief activities
    - **Amount calculation** based on disaster severity, amount present in the disaster pool of that specific disaster and organizational capacity
    - **Evidence validation** for legitimacy verification
+
 7. **Automatic Approval/Rejection**: Claims are instantly approved for voting or rejected based on AI analysis
+
 
 #### **Step 3: Democratic Community Voting**
 8. **zkPassport Verification**: Voters must prove they are 18+ using zero-knowledge passport verification
+
 9. **Anonymous Voting**: Verified voters cast anonymous votes with four options:
    - **Accept**: Approve funding as requested
    - **Reject**: Deny funding entirely  
    - **Raise Amount**: Approve but suggest higher funding
    - **Lower Amount**: Approve but suggest reduced funding
+
 10. **Consensus Mechanism**: Minimum 3 votes required for decision; majority vote determines outcome
 
 #### **Step 4: Automated Fund Distribution**
@@ -193,39 +201,39 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 #### **1. Disaster Search Agent** `(mosaia ID: 68660a4aeef377abf1f7443f)`
 - **Purpose**: Continuously monitors global news sources for natural disasters and tragic events using **EXA search**
 - **Function**: Identifies breaking disaster events, extracts key details (title, description, location, source links), and triggers the pipeline workflow
-- **📁 Line of Code**: [Disaster Search Agent](https://github.com/SamFelix03/veHelp/blob/d5f5e57eed3797537fce0dba1f021af211e68293/Mosaia%20Agents/Disaster%20Creation%20Pipeline/main.py#L57-L76)
+- **📁 Line of Code**: [Disaster Search Agent](Mosaia%20Agents/DisasterCreationPipeline/main.py)
 
 #### **2. BBOX Identifier Agent** `(mosaia ID: 6864d6cbca5744854d34c998)`
 - **Purpose**: Converts textual disaster locations into precise geographical bounding boxes using the **Bounding Box Tool** `(mosaia ID: 6864d67fca5744854d34c8c6)`
 - **Function**: Takes disaster location data and generates accurate latitude/longitude coordinates to define the affected geographical area
-- **📁 Line of Code**: [BBOX Identifier Agent](https://github.com/SamFelix03/veHelp/blob/d5f5e57eed3797537fce0dba1f021af211e68293/Mosaia%20Agents/Disaster%20Creation%20Pipeline/main.py#L78-L90)
+- **📁 Line of Code**: [BBOX Identifier Agent](Mosaia%20Agents/DisasterCreationPipeline/main.py)
 
 #### **3. WeatherXM Agent** `(mosaia ID: 6864dd95ade4d61675d45e4d)`
 - **Purpose**: Fetches real-time weather data from active weather stations within the disaster zone using **WeatherXM BBox Weather Tool** `(mosaia ID: 6864dcc425ddf4f7d390d91b)`
 - **Function**: Provides crucial meteorological context including temperature, humidity, precipitation, wind patterns, and atmospheric conditions. This data provided by WeatherXM is **CRUCIAL** for our agent to make an informed decision on disaster severity
-- **📁 Line of Code**: [WeatherXM Agent](https://github.com/SamFelix03/veHelp/blob/d5f5e57eed3797537fce0dba1f021af211e68293/Mosaia%20Agents/Disaster%20Creation%20Pipeline/main.py#L92-L104)
+- **📁 Line of Code**: [WeatherXM Agent](Mosaia%20Agents/DisasterCreationPipeline/main.py)
 
 #### **4. Disaster Analysis Agent** `(mosaia ID: 6866162ee2d11c774d448a27)`
 - **Purpose**: Performs comprehensive disaster severity analysis by combining news data with weather intelligence to determine appropriate relief funding
 - **Function**: Calculates required fund amounts in USD, assesses disaster impact severity, and provides detailed analysis for smart contract deployment
-- **📁 Line of Code**: [Disaster Analysis Agent](https://github.com/SamFelix03/veHelp/blob/d5f5e57eed3797537fce0dba1f021af211e68293/Mosaia%20Agents/Disaster%20Creation%20Pipeline/main.py#L106-L119)
+- **📁 Line of Code**: [Disaster Analysis Agent](Mosaia%20Agents/DisasterCreationPipeline/main.py)
 
 #### **5. Tweet Agent** `(mosaia ID: 6864e70f77520411d032518a)`
 - **Purpose**: Automatically generates and publishes disaster awareness content to Twitter using **Post to X Tool** `(mosaia ID: 6864e68268d0c18b74da20e7)`
 - **Function**: Creates compelling tweets with disaster details, funding requirements, and source links to maximize public engagement and donations
-- **📁 Line of Code**: [Tweet Agent](https://github.com/SamFelix03/veHelp/blob/d5f5e57eed3797537fce0dba1f021af211e68293/Mosaia%20Agents/Disaster%20Creation%20Pipeline/main.py#L204-L215)
+- **📁 Line of Code**: [Tweet Agent](Mosaia%20Agents/DisasterCreationPipeline/main.py)
 
 ### 🗳️ **Verification Flow Architecture**
 
 #### **6. Fact-Check Agent** `(mosaia ID: 686656aaf14ab5c885e431ce)`
 - **Purpose**: Analyzes NGO funding requests using AI-powered fact-checking to verify legitimacy and determine appropriate funding amounts
 - **Function**: Cross-references organization claims with disaster data, evaluates project feasibility, and calculates justified funding amounts based on evidence
-- **📁 Line of Code**: [Fact Checking Agent](https://github.com/SamFelix03/veHelp/blob/1dd11509d938f5811c93d6ada3397f10882080a9/Mosaia%20Agents/Voting-Verification%20Pipeline/main.py#L263-L291)
+- **📁 Line of Code**: [Fact Checking Agent](Mosaia%20Agents/VotingVerificationPipeline/main.py)
 
 #### **7. Disaster Consensus Handling Agent** `(mosaia ID: 6866646ff14ab5c885e4386d)`
 - **Purpose**: Processes community voting results and executes final funding decisions on the Flow blockchain
 - **Function**: Aggregates verified votes, determines consensus, and automatically unlocks funds or rejects claims based on democratic decision-making
-- **📁 Line of Code**: [Votes Handling Agent](https://github.com/SamFelix03/veHelp/blob/1dd11509d938f5811c93d6ada3397f10882080a9/Mosaia%20Agents/Voting-Verification%20Pipeline/main.py#L565-L586)
+- **📁 Line of Code**: [Votes Handling Agent](Mosaia%20Agents/VotingVerificationPipeline/main.py)
 
 ### 🛠️ **Mosaia Tools Integration**
 
@@ -247,7 +255,7 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 **Required Environment Variables**:
 - `Geoapify API Key`
 
-**📁 Line of Code**: [BBOX Tool](https://github.com/SamFelix03/veHelp/tree/main/Mosaia%20tools/bboxtool)
+**📁 Line of Code**: [BBOX Tool](Mosaia%20Tools/bboxtool)
 
 #### **2. WeatherXM Tool** `(mosaia ID: 6864dcc425ddf4f7d390d91b)`
 **Purpose**: Integrates WeatherXM to provide real-time, hyperlocal weather data for disaster assessment and relief planning. The data collected from WeatherXM's decentralized network of weather stations is sent to the agent.
@@ -266,7 +274,7 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 **Required Environment Variables**:
 - `WeatherXM API key`
 
-**📁 Line of Code**: [WeatherXM Tool](https://github.com/SamFelix03/veHelp/tree/main/Mosaia%20tools/Mosaia-Weather-XM-Tool)
+**📁 Line of Code**: [WeatherXM Tool](Mosaia%20Tools/Mosaia-Weather-XM-Tool)
 
 #### **3. Mosaia Twitter Poster Tool** `(mosaia ID: 6864e68268d0c18b74da20e7)`
 **Purpose**: A Mosaia Tool that helps your agent post tweets using the Twitter API.
@@ -279,7 +287,7 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 - `TWITTER_ACCESS_TOKEN`
 - `TWITTER_ACCESS_SECRET`
 
-**📁 Line of Code**: [Twitter Poster Tool](https://github.com/SamFelix03/veHelp/tree/main/Mosaia%20tools/Mosaia-TweetPosting-Tool)
+**📁 Line of Code**: [Twitter Poster Tool](Mosaia%20Tools/Mosaia-TweetPosting-Tool)
 
 
 ## ⛓️ **VeChain Integration**
@@ -287,7 +295,7 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 ### 📋 **Deployed Contract**
 **🔗 Contract Address**: [`0x6b564f771732476c86edee283344f5678e314c3d`](https://explore-testnet.vechain.org/accounts/0x6b564f771732476c86edee283344f5678e314c3d)
 
-**📁 Contract Code**: [VeHelp.sol](https://github.com/SamFelix03/veHelp/blob/main/vechain-hardhat/contracts/VeHelp.sol)
+**📁 Contract Code**: [VeHelp.sol](vechain-hardhat/contracts/VeHelp.sol)
 
 ### 🏗️ **Smart Contract Architecture**
 
@@ -338,7 +346,7 @@ veHelp operates through an **Autonomous AI agent Ecosystem** that transforms dis
 
 veHelp seamlessly integrates with **VeWorld**, VeChain's premier wallet, using the **VeChain DAppKit** for a smooth user experience.
 
-**📁 Integration Code**: [VeChainWalletContext.tsx](https://github.com/SamFelix03/veHelp/blob/main/frontend/src/components/VeChainWalletContext.tsx)
+**📁 Integration Code**: [VeChainWalletContext.tsx](frontend/src/components/VeChainWalletContext.tsx)
 
 #### **Features**
 - **One-Click Connection**: Users connect via VeWorld browser extension or mobile wallet with a single click
@@ -363,7 +371,7 @@ DAppKitUI.wallet.subscribeToKey('address', (newAddress) => {
 });
 ```
 
-**📁 Deployment Script**: [deploy-godshand.ts](https://github.com/SamFelix03/veHelp/blob/main/vechain-hardhat/scripts/deploy-godshand.ts)
+**📁 Deployment Script**: [deploy-vehelp.ts](vechain-hardhat/scripts/deploy-vehelp.ts)
 
 
 ## 🌤️ WeatherXM Integration
@@ -394,7 +402,7 @@ The agent heavily relies on this granular, real-time data to:
 - Determine the urgency and severity of the situation in specific micro-locations.
 - Autonomously calculate and allocate appropriate relief funding, ensuring aid reaches those most impacted.
 
-**📁 Line of Code**: [WeatherXM Tool](https://github.com/SamFelix03/veHelp/tree/main/Mosaia%20tools/Mosaia-Weather-XM-Tool)
+**📁 Line of Code**: [WeatherXM Tool](Mosaia%20Tools/Mosaia-Weather-XM-Tool)
 
 ---
 
